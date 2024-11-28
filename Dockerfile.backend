@@ -1,0 +1,24 @@
+FROM node:18-alpine
+
+WORKDIR /app
+
+# Install necessary build dependencies
+RUN apk add --no-cache python3 make g++ openssl
+
+# Copy package files
+COPY package*.json ./
+COPY prisma ./prisma/
+
+# Install dependencies
+RUN npm install
+
+# Generate Prisma client
+RUN npx prisma generate
+
+# Copy source code
+COPY . .
+
+EXPOSE 3000
+
+# Initialize database and start application
+CMD ["sh", "-c", "npx prisma migrate deploy && npm run start"]
